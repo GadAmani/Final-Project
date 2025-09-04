@@ -86,13 +86,8 @@ class Onboardingscreen1 extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Onboardingscreen2(),
-          ),
-        );
-      },
+                      Navigator.pushReplacementNamed(context, '/onboarding/2'); // ✅ use named route
+                    },
       child: const Text(
         "Next",
         style: TextStyle(

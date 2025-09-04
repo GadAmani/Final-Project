@@ -1,5 +1,5 @@
+import 'package:dating_app/onboarding%20screens/getstarted.dart';
 import 'package:dating_app/onboarding%20screens/onboardingScreen1.dart';
-import 'package:dating_app/onboarding%20screens/onboardingScreen3.dart';
 import 'package:flutter/material.dart';
 
 final Color mainColor = Color(0xFFFFCFEF);
@@ -116,14 +116,8 @@ class Onboardingscreen2 extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const OnboardingScreen(),
-                                ),
-                              );
-                            },
+                      Navigator.pushReplacementNamed(context, '/onboarding/3'); // ✅ use named route
+                    },
                             child: const Text(
                               "Next",
                               style: TextStyle(

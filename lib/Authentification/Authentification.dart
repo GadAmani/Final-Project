@@ -99,8 +99,7 @@ class Authentification extends StatelessWidget {
                   child: ElevatedButton(
                     
                     onPressed: () {
-                      // Add your button action here
-                      print('Create Account button pressed');
+                      Navigator.pushReplacementNamed(context, '/signup'); // ✅ use named route
                     },
                     child: Text('Create Account'),
                   ),
@@ -111,8 +110,7 @@ class Authentification extends StatelessWidget {
                   width: 500,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Add your button action here
-                      print('Signin Account button pressed');
+                      Navigator.pushReplacementNamed(context, '/login'); // ✅ use named route
                     },
                     child: Text('Sign in'),
                   ),
