@@ -1,11 +1,6 @@
-import 'package:dating_app/services/auth_service.dart';
-import 'package:dating_app/services/token_service.dart' hide TokenService;
+import 'package:dating_app/services/verify.dart';
 import 'package:flutter/material.dart';
-import '../widgets/app_button.dart';
-import '../widgets/app_input.dart';
-
-const Color mainColor = Color(0xFFFFCFEF);
-const Color black = Color(0xFF000000);
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,83 +10,88 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailCtrl = TextEditingController();
-  final TextEditingController passwordCtrl = TextEditingController();
-  bool loading = false;
-
-  void _login() async {
-    FocusScope.of(context).unfocus(); // dismiss keyboard
-
-    final email = emailCtrl.text.trim();
-    final password = passwordCtrl.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
-      );
-      return;
-    }
-
-    setState(() => loading = true);
-
-    final result = await AuthService().login(email, password);
-
-    setState(() => loading = false);
-
-    if (result.containsKey('token')) {
-      // save token
-      await TokenService.saveToken(result['token']);
-
-      // navigate to home
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      // show error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['error'] ?? 'Login failed')),
-      );
-    }
-  }
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<VerifyAuthProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white, // match SignupPage background
+      backgroundColor: Colors.white, // white background
       appBar: AppBar(
         backgroundColor: Colors.transparent, // transparent appbar
-        elevation: 0, // remove shadow
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: black),
+          icon: const Icon(Icons.arrow_back, color: Colors.pink),
           onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              Navigator.pushReplacementNamed(context, '/onboarding/3');
-            }
+            Navigator.pushReplacementNamed(context, '/onboarding/3'); // go back
           },
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 60),
+            const Icon(Icons.favorite, color: Colors.pink, size: 80), // heart icon
             const SizedBox(height: 40),
-            const Icon(Icons.favorite, color: mainColor, size: 80), // match SignupPage
-            const SizedBox(height: 30),
-            Text(
-              "Login",
-              style: Theme.of(context).textTheme.headlineSmall,
+
+            // Email TextField
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+              ),
             ),
-            const SizedBox(height: 20),
-            AppInput(controller: emailCtrl, hint: "Email"),
             const SizedBox(height: 15),
-            AppInput(controller: passwordCtrl, hint: "Password", obscureText: true),
-            const SizedBox(height: 20),
-            AppButton(
-              label: "Login",
-              loading: loading,
-              onPressed: loading ? null : _login,
-              icon: Icons.login,
+
+            // Password TextField
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Custom Login Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: authProvider.loading
+                    ? null
+                    : () async {
+                        await authProvider.login(
+                          _emailController.text.trim(),
+                          _passwordController.text.trim(),
+                        );
+
+                        if (authProvider.isLoggedIn) {
+                          Navigator.pushReplacementNamed(context, "/home");
+                        } else if (authProvider.errorMessage.isNotEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(authProvider.errorMessage)),
+                          );
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: authProvider.loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+              ),
             ),
           ],
         ),

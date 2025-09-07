@@ -1,6 +1,9 @@
+import 'package:dating_app/landingPage/HomePage/homePage.dart';
+import 'package:dating_app/onboarding%20screens/getstarted.dart';
 import 'package:flutter/material.dart';
-import 'package:dating_app/services/token_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dating_app/services/verify.dart'; // your VerifyAuthProvider
 
 final Color mainColor = Color(0xFFFFCFEF);
 final Color black = Color(0xFF000000);
@@ -16,30 +19,26 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _checkLogin();
   }
-
-  Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2)); // splash delay
-
-    // Read token and onboarding flag
-    String? token = await TokenService.getToken();
+  Future<void> _checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    bool seenOnboarding = prefs.getBool("onboarding_seen") ?? false;
-
-    if (!mounted) return;
-
-    if (!seenOnboarding) {
-      // ✅ First time → show onboarding
-      Navigator.pushReplacementNamed(context, '/onboarding/1');
-    } else if (token != null && token.isNotEmpty) {
-      // ✅ Already logged in → go home
-      Navigator.pushReplacementNamed(context, '/home');
+    final token = prefs.getString('token');
+    await Future.delayed(const Duration(seconds: 2)); // splash delay
+    if (token != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Homepage()),
+      );
     } else {
-      // ✅ Seen onboarding but no token → go to login/signup choice
-      Navigator.pushReplacementNamed(context, '/auth-choice');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const GetStarted()),
+      );
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {

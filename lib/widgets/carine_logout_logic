@@ -1,0 +1,25 @@
+Future<void> _logout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Are you sure?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Log out')),
+        ],
+      ),
+    ) ?? false;
+
+    if (!confirm) return;
+
+    await context.read<VerifyAuthProvider>().clear();
+    if (!context.mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+  }
+  
+  
+  
+  
+  
+  
+   onTap: () => _logout(context)
